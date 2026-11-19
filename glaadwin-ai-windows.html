@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Glaadwin AI Jarvis — Windows (.exe) Edition</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #040914;
+      --bg-panel: #0a1324;
+      --bg-card: #0e1a30;
+      --border-subtle: rgba(56, 189, 248, 0.16);
+      --cyan-glow: rgba(34, 211, 238, 0.35);
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      background-color: var(--bg-deep);
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+    .glass-panel {
+      background: linear-gradient(160deg, rgba(14, 26, 48, 0.92), rgba(7, 14, 28, 0.96));
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    }
+    .hud-grid-bg {
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.14), transparent 58%),
+        linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+    }
+    .cyan-ring-glow {
+      box-shadow: 0 0 24px rgba(34, 211, 238, 0.25), inset 0 0 18px rgba(34, 211, 238, 0.12);
+    }
+    .toggle-thumb {
+      transition: transform 0.2s ease;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      70% { transform: scale(1.22); opacity: 0; }
+      100% { transform: scale(1.22); opacity: 0; }
+    }
+    .orb-pulse::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      border: 2px solid rgba(34, 211, 238, 0.65);
+      animation: pulseRing 2s infinite;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="hud-grid-bg text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-100">
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[90] flex flex-col gap-2 max-w-xs w-[calc(100vw-2rem)] pointer-events-none"></div>
+
+  <!-- SCREEN 1: SIGN IN / SYSTEM GATE -->
+  <section id="auth-screen" class="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6">
+    <div class="glass-panel rounded-3xl w-full max-w-md p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none"></div>
+
+      <!-- Brand Logo -->
+      <div class="flex flex-col items-center text-center mb-6">
+        <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-cyan-400/40 flex items-center justify-center mb-4 cyan-ring-glow">
+          <svg viewBox="0 0 64 64" class="w-10 h-10" fill="none" aria-hidden="true">
+            <polygon points="32,6 54,19 54,45 32,58 10,45 10,19" stroke="#22d3ee" stroke-width="2.5" fill="rgba(6,182,212,0.08)" />
+            <circle cx="32" cy="32" r="11" stroke="#38bdf8" stroke-width="2.5" />
+            <circle cx="32" cy="32" r="4" fill="#22d3ee" />
+            <path d="M32 6V21M32 43V58M10 19L22.5 26.5M41.5 37.5L54 45M54 19L41.5 26.5M22.5 37.5L10 45" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.6" />
+          </svg>
+        </div>
+        <span class="font-mono-tech text-xs tracking-[0.22em] uppercase text-cyan-400 mb-1">GLAADWIN AI</span>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Glaadwin AI Jarvis</h1>
+        <p class="text-sm text-slate-400 mt-1.5">All-in-one voice assistant for Jarvis, Gaming, Streaming &amp; Everyday Control.</p>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="signin-form" class="space-y-3.5">
+        <div>
+          <label for="user-name-input" class="block text-xs font-medium text-slate-300 mb-1.5">Your Name</label>
+          <input id="user-name-input" type="text" placeholder="e.g., Alex" autocomplete="name"
+            class="w-full px-4 py-3 rounded-xl bg-slate-950/90 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition" />
+        </div>
+        <div>
+          <label for="user-email-input" class="block text-xs font-medium text-slate-300 mb-1.5">Email or Glaadwin ID</label>
+          <input id="user-email-input" type="email" placeholder="you@example.com" autocomplete="email"
+            class="w-full px-4 py-3 rounded-xl bg-slate-950/90 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition" />
+        </div>
+        <button type="submit"
+          class="w-full py-3.5 px-5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:scale-[0.99] text-slate-950 font-semibold text-sm transition shadow-lg shadow-cyan-500/20">
+          Sign In to Glaadwin AI
+        </button>
+      </form>
+
+      <div class="flex items-center gap-3 my-5">
+        <div class="h-px flex-1 bg-slate-800"></div>
+        <span class="text-xs text-slate-500 uppercase tracking-wider">or continue with</span>
+        <div class="h-px flex-1 bg-slate-800"></div>
+      </div>
+
+      <!-- Google & Android Sign-In Options -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-2.5">
+        <button id="google-signin-btn" type="button"
+          class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 active:scale-[0.99] text-slate-900 font-semibold text-sm transition flex items-center justify-center gap-2.5 shadow-sm">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+          </svg>
+          <span>With Google</span>
+        </button>
+
+        <button id="android-signin-btn" type="button"
+          class="w-full py-3 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 active:scale-[0.99] border border-emerald-400/40 text-emerald-200 font-semibold text-sm transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.523 15.341a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5m-11.046 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5m11.405-6.02 1.997-3.46a.416.416 0 0 0-.152-.567.416.416 0 0 0-.568.152L17.137 8.95C15.61 8.25 13.86 7.86 12 7.86c-1.86 0-3.61.39-5.137 1.09L4.841 5.446a.416.416 0 0 0-.568-.152.416.416 0 0 0-.152.567l1.997 3.46C2.688 11.186.343 14.658 0 18.761h24c-.344-4.103-2.688-7.575-6.118-9.44"/>
+          </svg>
+          <span>With Android</span>
+        </button>
+      </div>
+
+      <!-- System Access Button -->
+      <button id="system-signin-btn" type="button"
+        class="w-full py-3 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 font-medium text-sm transition flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        Continue with System Mode
+      </button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: MAIN JARVIS APP -->
+  <div id="app-shell" class="hidden min-h-[100dvh] flex flex-col">
+  <div class="bg-slate-950 border-b border-slate-800 px-4 h-8 flex items-center justify-between text-[11px] font-mono-tech text-slate-400 select-none">
+    <span>GLAADWIN AI JARVIS · WINDOWS DESKTOP (.EXE)</span>
+    <div class="flex items-center gap-3"><span>—</span><span>▢</span><span class="text-rose-400">✕</span></div>
+  </div>
+
+    <!-- TOP NAVBAR -->
+    <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-cyan-500/15">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+        <!-- Brand -->
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-slate-900 border border-cyan-400/40 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" class="w-6 h-6" fill="none" aria-hidden="true">
+              <polygon points="32,6 54,19 54,45 32,58 10,45 10,19" stroke="#22d3ee" stroke-width="3" />
+              <circle cx="32" cy="32" r="9" stroke="#38bdf8" stroke-width="3" />
+              <circle cx="32" cy="32" r="3.5" fill="#22d3ee" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm sm:text-base tracking-tight text-white truncate">GLAADWIN AI</span>
+              <span id="status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono-tech bg-slate-900 border border-slate-700 text-slate-300">
+                <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                <span id="status-text">Standby</span>
+              </span>
+            </div>
+            <p id="welcome-subtitle" class="text-[11px] text-cyan-400 truncate">Welcome to Glaadwin AI Jarvis</p>
+          </div>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="start-glaadwin-btn" type="button"
+            class="px-3 sm:px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:scale-[0.98] text-slate-950 font-semibold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-md shadow-cyan-500/20">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Start Glaadwin AI</span>
+          </button>
+
+          <button id="voice-mute-btn" type="button" title="Toggle Voice Output" aria-label="Toggle Voice Output"
+            class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-cyan-300 transition">
+            <svg id="voice-on-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+            </svg>
+            <svg id="voice-off-icon" class="w-4 h-4 hidden text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+            </svg>
+          </button>
+
+          <button id="signout-btn" type="button" title="Sign Out" aria-label="Sign Out"
+            class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white transition">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB BAR -->
+      <nav class="max-w-7xl mx-auto px-3 sm:px-6 pb-2.5 pt-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar" aria-label="App Modes">
+        <button data-tab="jarvis" type="button" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 bg-cyan-500/15 text-cyan-300 border border-cyan-400/40">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          Jarvis Core
+        </button>
+        <button data-tab="gaming" type="button" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 bg-slate-900/70 text-slate-400 border border-slate-800 hover:text-slate-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          Gaming
+        </button>
+        <button data-tab="streaming" type="button" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 bg-slate-900/70 text-slate-400 border border-slate-800 hover:text-slate-200">
+          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          Streaming
+        </button>
+        <button data-tab="everything" type="button" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 bg-slate-900/70 text-slate-400 border border-slate-800 hover:text-slate-200">
+          <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+          Everything &amp; Builds
+        </button>
+      </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-6">
+
+      <!-- WELCOME BANNER -->
+      <div id="welcome-banner" class="mb-5 glass-panel rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-cyan-400/30">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <h2 id="welcome-heading" class="text-sm sm:text-base font-semibold text-white">Welcome to Glaadwin AI Jarvis.</h2>
+            <p class="text-xs text-slate-400">Tap <strong class="text-cyan-300">Start Glaadwin AI</strong> to run step-by-step app permission prompts for Overlay, Background, Mic, Clap, Notifications &amp; Storage.</p>
+          </div>
+        </div>
+        <button id="dismiss-banner-btn" type="button" class="self-end sm:self-center text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800">
+          Dismiss
+        </button>
+      </div>
+
+      <!-- ==================== TAB 1: JARVIS CORE ==================== -->
+      <section id="tab-jarvis" class="tab-panel grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Left: Jarvis Core HUD -->
+        <div class="lg:col-span-5 glass-panel rounded-3xl p-5 flex flex-col items-center justify-between">
+          <div class="w-full flex items-center justify-between mb-2">
+            <div>
+              <span class="font-mono-tech text-[11px] uppercase tracking-widest text-cyan-400">Acoustic Core</span>
+              <h3 class="text-base font-semibold text-white">GLAADWIN HUD</h3>
+            </div>
+            <button id="open-settings-inline-btn" type="button" class="text-xs px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 transition">
+              Permissions (<span id="perm-count-badge">0/7</span>)
+            </button>
+          </div>
+
+          <!-- Canvas Arc Reactor -->
+          <div class="relative w-full max-w-[270px] aspect-square flex items-center justify-center my-2">
+            <canvas id="jarvis-canvas" class="w-full h-full"></canvas>
+            <button id="core-tap-btn" type="button"
+              class="absolute w-24 h-24 rounded-full bg-slate-950/75 hover:bg-cyan-500/15 border border-cyan-400/50 flex flex-col items-center justify-center transition active:scale-95">
+              <span class="font-mono-tech text-[10px] tracking-widest uppercase text-cyan-300">TAP OR SAY</span>
+              <span class="text-xs font-bold text-white mt-0.5">GLAADWIN</span>
+            </button>
+          </div>
+
+          <!-- Live Indicators -->
+          <div class="w-full grid grid-cols-2 gap-2.5 my-3">
+            <div class="rounded-xl bg-slate-950/70 border border-slate-800 p-3">
+              <div class="text-[11px] text-slate-400">Wake Word</div>
+              <div id="hud-wake-status" class="text-xs font-semibold text-slate-300 mt-0.5 font-mono-tech">Off · "Hey Glaadwin AI"</div>
+            </div>
+            <div class="rounded-xl bg-slate-950/70 border border-slate-800 p-3">
+              <div class="text-[11px] text-slate-400">Clap Sensor</div>
+              <div id="hud-clap-status" class="text-xs font-semibold text-slate-300 mt-0.5 font-mono-tech">Standby</div>
+            </div>
+            <div class="rounded-xl bg-slate-950/70 border border-slate-800 p-3">
+              <div class="text-[11px] text-slate-400">Display Over Apps</div>
+              <div id="hud-overlay-status" class="text-xs font-semibold text-slate-300 mt-0.5 font-mono-tech">Not Allowed</div>
+            </div>
+            <div class="rounded-xl bg-slate-950/70 border border-slate-800 p-3">
+              <div class="text-[11px] text-slate-400">Background Mode</div>
+              <div id="hud-bg-status" class="text-xs font-semibold text-slate-300 mt-0.5 font-mono-tech">Not Allowed</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Triggers -->
+          <div class="w-full grid grid-cols-2 gap-2.5">
+            <button id="sim-wake-btn" type="button"
+              class="py-2.5 px-3 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-cyan-200 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+              "Hey Glaadwin AI"
+            </button>
+            <button id="sim-clap-btn" type="button"
+              class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+              <span>👏</span>
+              Test Clap Wake
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Jarvis Command Console -->
+        <div class="lg:col-span-7 glass-panel rounded-3xl p-5 flex flex-col min-h-[430px] max-h-[620px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800/90">
+            <div>
+              <h3 class="text-base font-semibold text-white">Jarvis Command Feed</h3>
+              <p class="text-xs text-slate-400">Speak, clap, or type any command to control Gaming, Streaming, or Permissions.</p>
+            </div>
+            <button id="clear-log-btn" type="button" class="text-xs text-slate-400 hover:text-cyan-300 transition">Clear</button>
+          </div>
+
+          <!-- Messages -->
+          <div id="jarvis-chat-log" class="flex-1 overflow-y-auto py-4 space-y-3 pr-1"></div>
+
+          <!-- Suggested Chips -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
+            <button type="button" data-cmd="Hey Glaadwin AI, ask permissions" class="quick-cmd px-3 py-1.5 rounded-full bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-xs text-cyan-200 whitespace-nowrap transition">Ask All Permissions</button>
+            <button type="button" data-cmd="Hey Glaadwin AI, open gaming mode" class="quick-cmd px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs text-cyan-300 whitespace-nowrap transition">Open Gaming Mode</button>
+            <button type="button" data-cmd="Hey Glaadwin AI, start stream" class="quick-cmd px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs text-cyan-300 whitespace-nowrap transition">Start Stream</button>
+            <button type="button" data-cmd="Hey Glaadwin AI, system status" class="quick-cmd px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs text-cyan-300 whitespace-nowrap transition">System Status</button>
+          </div>
+
+          <!-- Input Bar -->
+          <form id="jarvis-cmd-form" class="flex items-center gap-2 pt-2 border-t border-slate-800/90">
+            <input id="jarvis-cmd-input" type="text" placeholder="Type a command or say 'Hey Glaadwin AI'..."
+              class="flex-1 px-4 py-3 rounded-xl bg-slate-950/90 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition" />
+            <button type="submit"
+              class="px-4 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition shrink-0">
+              Send
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: GAMING ==================== -->
+      <section id="tab-gaming" class="tab-panel hidden space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass-panel rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-mono-tech uppercase">Frame Rate</span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span id="game-fps" class="text-3xl font-bold text-emerald-400 font-mono-tech">120</span>
+              <span class="text-xs text-slate-400">FPS</span>
+            </div>
+            <p id="game-fps-note" class="text-xs text-slate-400 mt-1">Standard balanced mode</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-mono-tech uppercase">Network Ping</span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span id="game-ping" class="text-3xl font-bold text-cyan-400 font-mono-tech">24</span>
+              <span class="text-xs text-slate-400">ms</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Low-latency route active</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <span class="text-xs text-slate-400 font-mono-tech uppercase">Thermal Status</span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span id="game-temp" class="text-3xl font-bold text-sky-400 font-mono-tech">41°C</span>
+              <span class="text-xs text-slate-400">Optimal</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Jarvis background load: minimal</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <!-- Gaming Controls -->
+          <div class="glass-panel rounded-3xl p-5 space-y-3">
+            <h3 class="text-base font-semibold text-white mb-2">Gaming Overlay &amp; Boost</h3>
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+              <div>
+                <div class="text-sm font-medium text-white">Turbo Performance Mode</div>
+                <div class="text-xs text-slate-400">Prioritize FPS &amp; reduce HUD animations</div>
+              </div>
+              <button id="toggle-turbo" type="button" role="switch" aria-checked="false" class="switch-btn w-12 h-7 rounded-full bg-slate-800 border border-slate-700 p-0.5 flex items-center transition">
+                <span class="toggle-thumb w-5 h-5 rounded-full bg-slate-300 translate-x-0"></span>
+              </button>
+            </div>
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+              <div>
+                <div class="text-sm font-medium text-white">Do Not Disturb (Gaming)</div>
+                <div class="text-xs text-slate-400">Silence popups while keeping Jarvis voice active</div>
+              </div>
+              <button id="toggle-dnd" type="button" role="switch" aria-checked="false" class="switch-btn w-12 h-7 rounded-full bg-slate-800 border border-slate-700 p-0.5 flex items-center transition">
+                <span class="toggle-thumb w-5 h-5 rounded-full bg-slate-300 translate-x-0"></span>
+              </button>
+            </div>
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+              <div>
+                <div class="text-sm font-medium text-white">Crosshair HUD Preview</div>
+                <div class="text-xs text-slate-400">Display centered cyan reticle on screen</div>
+              </div>
+              <button id="toggle-crosshair" type="button" role="switch" aria-checked="false" class="switch-btn w-12 h-7 rounded-full bg-slate-800 border border-slate-700 p-0.5 flex items-center transition">
+                <span class="toggle-thumb w-5 h-5 rounded-full bg-slate-300 translate-x-0"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Voice Macros -->
+          <div class="glass-panel rounded-3xl p-5">
+            <h3 class="text-base font-semibold text-white mb-1">Hands-Free Gaming Voice Macros</h3>
+            <p class="text-xs text-slate-400 mb-4">Tap to trigger or say "Hey Glaadwin AI" while playing.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button type="button" data-macro="Clipped the last 30 seconds to your highlights folder." class="macro-btn p-3.5 rounded-2xl bg-slate-950/80 hover:bg-cyan-500/10 border border-slate-800 hover:border-cyan-400/40 text-left transition">
+                <div class="text-xs font-mono-tech text-cyan-400">VOICE MACRO</div>
+                <div class="text-sm font-semibold text-white mt-0.5">Clip Last 30s</div>
+              </button>
+              <button type="button" data-macro="Squad microphone muted. Clap twice to unmute." class="macro-btn p-3.5 rounded-2xl bg-slate-950/80 hover:bg-cyan-500/10 border border-slate-800 hover:border-cyan-400/40 text-left transition">
+                <div class="text-xs font-mono-tech text-cyan-400">VOICE MACRO</div>
+                <div class="text-sm font-semibold text-white mt-0.5">Mute Squad Mic</div>
+              </button>
+              <button type="button" data-macro="Cleared background cache and boosted frame pacing." class="macro-btn p-3.5 rounded-2xl bg-slate-950/80 hover:bg-cyan-500/10 border border-slate-800 hover:border-cyan-400/40 text-left transition">
+                <div class="text-xs font-mono-tech text-cyan-400">VOICE MACRO</div>
+                <div class="text-sm font-semibold text-white mt-0.5">Quick RAM Boost</div>
+              </button>
+              <button type="button" data-macro="Switched audio profile to Footsteps EQ." class="macro-btn p-3.5 rounded-2xl bg-slate-950/80 hover:bg-cyan-500/10 border border-slate-800 hover:border-cyan-400/40 text-left transition">
+                <div class="text-xs font-mono-tech text-cyan-400">VOICE MACRO</div>
+                <div class="text-sm font-semibold text-white mt-0.5">Footsteps Audio EQ</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: STREAMING ==================== -->
+      <section id="tab-streaming" class="tab-panel hidden space-y-5">
+        <div class="glass-panel rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div id="stream-live-dot" class="w-3.5 h-3.5 rounded-full bg-slate-600 shrink-0"></div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-lg font-bold text-white">Glaadwin Stream Deck</h3>
+                <span id="stream-state-label" class="px-2 py-0.5 rounded-md text-[11px] font-mono-tech bg-slate-900 border border-slate-700 text-slate-400">OFFLINE</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">Active Scene: <strong id="active-scene-label" class="text-cyan-300">Main Gameplay</strong> · Timer: <span id="stream-timer" class="font-mono-tech text-white">00:00:00</span></p>
+            </div>
+          </div>
+          <button id="toggle-stream-btn" type="button"
+            class="px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition shrink-0">
+            Go Live
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- Scene Switcher -->
+          <div class="lg:col-span-7 glass-panel rounded-3xl p-5">
+            <h4 class="text-sm font-semibold text-white mb-3">Instant Scene Switcher</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <button type="button" data-scene="Main Gameplay" class="scene-btn p-4 rounded-2xl bg-cyan-500/15 border border-cyan-400/50 text-left transition">
+                <div class="text-xs font-mono-tech text-cyan-300">SCENE 01</div>
+                <div class="text-sm font-semibold text-white mt-1">Main Gameplay</div>
+              </button>
+              <button type="button" data-scene="Just Chatting" class="scene-btn p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-cyan-400/30 text-left transition">
+                <div class="text-xs font-mono-tech text-slate-400">SCENE 02</div>
+                <div class="text-sm font-semibold text-white mt-1">Just Chatting</div>
+              </button>
+              <button type="button" data-scene="Be Right Back" class="scene-btn p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-cyan-400/30 text-left transition">
+                <div class="text-xs font-mono-tech text-slate-400">SCENE 03</div>
+                <div class="text-sm font-semibold text-white mt-1">Be Right Back</div>
+              </button>
+              <button type="button" data-scene="Starting Soon" class="scene-btn p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-cyan-400/30 text-left transition">
+                <div class="text-xs font-mono-tech text-slate-400">SCENE 04</div>
+                <div class="text-sm font-semibold text-white mt-1">Starting Soon</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Audio Mixer -->
+          <div class="lg:col-span-5 glass-panel rounded-3xl p-5 space-y-4">
+            <h4 class="text-sm font-semibold text-white">Audio Mixer</h4>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Microphone</span>
+                <span id="vol-mic-val" class="font-mono-tech text-cyan-300">85%</span>
+              </div>
+              <input id="vol-mic" type="range" min="0" max="100" value="85" class="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Game Audio</span>
+                <span id="vol-game-val" class="font-mono-tech text-cyan-300">70%</span>
+              </div>
+              <input id="vol-game" type="range" min="0" max="100" value="70" class="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300">Jarvis Voice &amp; Alerts</span>
+                <span id="vol-alerts-val" class="font-mono-tech text-cyan-300">90%</span>
+              </div>
+              <input id="vol-alerts" type="range" min="0" max="100" value="90" class="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: EVERYTHING & BUILDS ==================== -->
+      <section id="tab-everything" class="tab-panel hidden space-y-5">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <!-- Focus Timer -->
+          <div class="glass-panel rounded-3xl p-5 flex flex-col justify-between">
+            <div>
+              <span class="font-mono-tech text-[11px] uppercase tracking-wider text-cyan-400">Everyday Utility</span>
+              <h3 class="text-base font-semibold text-white mt-0.5">Jarvis Focus Timer</h3>
+            </div>
+            <div id="focus-timer-display" class="text-4xl sm:text-5xl font-bold font-mono-tech text-white my-5 text-center">25:00</div>
+            <div class="flex items-center justify-center gap-2.5">
+              <button id="timer-start-btn" type="button" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs sm:text-sm transition">Start</button>
+              <button id="timer-pause-btn" type="button" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium text-xs sm:text-sm transition">Pause</button>
+              <button id="timer-reset-btn" type="button" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium text-xs sm:text-sm transition">Reset</button>
+            </div>
+          </div>
+
+          <!-- Quick Scratchpad -->
+          <div class="glass-panel rounded-3xl p-5 flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="font-mono-tech text-[11px] uppercase tracking-wider text-cyan-400">Memory Pad</span>
+                <h3 class="text-base font-semibold text-white mt-0.5">Quick Notes</h3>
+              </div>
+              <button id="save-note-btn" type="button" class="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-cyan-300 text-xs font-medium transition">Save Note</button>
+            </div>
+            <textarea id="quick-notes-area" rows="5" placeholder="Jot down stream ideas, gaming loadouts, or tasks for Glaadwin AI..."
+              class="w-full flex-1 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 resize-none"></textarea>
+          </div>
+        </div>
+
+        <!-- 4 Platform Code Sections -->
+        <div class="glass-panel rounded-3xl p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+              <span class="font-mono-tech text-[11px] uppercase tracking-wider text-cyan-400">4 Platform Editions</span>
+              <h3 class="text-base font-semibold text-white mt-0.5">Dedicated Starter Code: Mobile, Tablet, Windows (.exe) &amp; macOS (.dmg)</h3>
+            </div>
+            <button id="copy-platform-code-btn" type="button"
+              class="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition shrink-0">
+              Copy Active Code
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar mb-3">
+            <button type="button" data-platform="mobile" class="platform-tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-400/40 whitespace-nowrap">1. Mobile (Android APK)</button>
+            <button type="button" data-platform="tablet" class="platform-tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 whitespace-nowrap">2. Tablet (Split-Screen)</button>
+            <button type="button" data-platform="windows" class="platform-tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 whitespace-nowrap">3. Windows (.exe)</button>
+            <button type="button" data-platform="macos" class="platform-tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 whitespace-nowrap">4. macOS (.dmg)</button>
+          </div>
+
+          <p id="platform-code-note" class="text-xs text-slate-400 mb-2.5"></p>
+          <pre id="platform-code-box" class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] sm:text-xs font-mono-tech text-cyan-200 overflow-x-auto max-h-72 leading-relaxed"></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- PERMISSIONS MANAGER MODAL ("Start Glaadwin AI") -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div class="glass-panel rounded-3xl w-full max-w-lg p-5 sm:p-6 max-h-[90dvh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-3 pb-4 border-b border-slate-800">
+        <div>
+          <span class="font-mono-tech text-[11px] uppercase tracking-widest text-cyan-400">Jarvis System Permissions</span>
+          <h3 class="text-lg font-bold text-white mt-0.5">Start Glaadwin AI Setup</h3>
+          <p class="text-xs text-slate-400 mt-1">Tap <strong>Ask All Permissions</strong> for step-by-step system prompts, or tap <strong>Ask</strong> on any setting below.</p>
+        </div>
+        <button id="close-settings-btn" type="button" aria-label="Close Settings"
+          class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Guided Step-by-Step Ask CTA -->
+      <div class="my-4 p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-400/35 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="text-sm font-semibold text-white">App-Style Permission Wizard</div>
+          <div class="text-xs text-slate-300">Prompts you one by one (Allow / While Using / Don't Allow) for all 7 settings.</div>
+        </div>
+        <button id="ask-all-wizard-btn" type="button"
+          class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition shrink-0">
+          Ask All (Step-by-Step)
+        </button>
+      </div>
+
+      <!-- Dynamic Permission Rows -->
+      <div id="permissions-list" class="space-y-2.5 my-3"></div>
+
+      <!-- Clap Sensitivity -->
+      <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center gap-3 my-3">
+        <span class="text-xs text-slate-300 shrink-0">Clap Sensitivity</span>
+        <input id="clap-sensitivity" type="range" min="15" max="90" value="55" class="flex-1 accent-cyan-400 cursor-pointer" />
+        <span id="clap-sens-val" class="text-xs font-mono-tech text-cyan-300 w-9 text-right">55%</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+        <button id="enable-all-perms-btn" type="button"
+          class="flex-1 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-sm transition">
+          Allow All Immediately
+        </button>
+        <button id="save-perms-btn" type="button"
+          class="py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-medium text-sm transition">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NATIVE-STYLE ASKABLE PERMISSION DIALOG -->
+  <div id="ask-dialog-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="glass-panel rounded-3xl w-full max-w-sm p-6 border-cyan-400/40 text-center">
+      <div class="flex items-center justify-between text-[11px] font-mono-tech text-cyan-400 mb-3">
+        <span id="ask-dialog-badge">SYSTEM PERMISSION</span>
+        <span id="ask-dialog-step"></span>
+      </div>
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-2xl mb-3" id="ask-dialog-icon">🎙️</div>
+      <h4 id="ask-dialog-title" class="text-base font-bold text-white">Allow Glaadwin AI Jarvis?</h4>
+      <p id="ask-dialog-desc" class="text-xs text-slate-300 mt-2 leading-relaxed"></p>
+      <div class="mt-5 flex flex-col gap-2">
+        <button id="ask-allow-always-btn" type="button"
+          class="w-full py-2.5 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition">
+          Allow Always
+        </button>
+        <button id="ask-allow-using-btn" type="button"
+          class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-200 font-medium text-sm transition">
+          While Using the App
+        </button>
+        <button id="ask-deny-btn" type="button"
+          class="w-full py-2.5 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 font-medium text-sm transition">
+          Don't Allow
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING OVERLAY ORB (DISPLAY OVER OTHER APPS) -->
+  <div id="floating-orb-wrap" class="fixed bottom-6 right-5 z-[60] hidden flex-col items-end gap-2">
+    <div id="orb-popover" class="hidden glass-panel rounded-2xl p-3.5 w-64 border-cyan-400/40 shadow-2xl">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-mono-tech text-[11px] text-cyan-300">GLAADWIN OVERLAY</span>
+        <button id="close-orb-popover" type="button" class="text-xs text-slate-400 hover:text-white">✕</button>
+      </div>
+      <p class="text-xs text-slate-300 mb-2.5">Jarvis is running over apps. Tap an action:</p>
+      <div class="grid grid-cols-2 gap-1.5">
+        <button type="button" data-orb-action="wake" class="orb-action-btn px-2.5 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 text-xs font-medium transition">Hey Glaadwin</button>
+        <button type="button" data-orb-action="clap" class="orb-action-btn px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-medium transition">👏 Clap</button>
+        <button type="button" data-orb-action="gaming" class="orb-action-btn px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-medium transition">Gaming</button>
+        <button type="button" data-orb-action="streaming" class="orb-action-btn px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-medium transition">Streaming</button>
+      </div>
+    </div>
+
+    <button id="floating-orb-btn" type="button" aria-label="Glaadwin AI Floating Overlay"
+      class="relative orb-pulse w-14 h-14 rounded-full bg-slate-950 border-2 border-cyan-400 flex items-center justify-center cyan-ring-glow cursor-grab active:cursor-grabbing select-none touch-none">
+      <svg viewBox="0 0 64 64" class="w-8 h-8 pointer-events-none" fill="none">
+        <polygon points="32,8 52,20 52,44 32,56 12,44 12,20" stroke="#22d3ee" stroke-width="3" />
+        <circle cx="32" cy="32" r="7" fill="#22d3ee" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- GAMING CROSSHAIR OVERLAY -->
+  <div id="crosshair-overlay" class="fixed inset-0 z-[55] hidden items-center justify-center pointer-events-none">
+    <div class="relative w-8 h-8">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-cyan-400 shadow"></div>
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-cyan-400 shadow"></div>
+      <div class="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 w-2.5 bg-cyan-400 shadow"></div>
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 h-0.5 w-2.5 bg-cyan-400 shadow"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-emerald-400"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ==================== PERMISSION CATALOG ====================
+      const PERMISSION_ITEMS = [
+        {
+          key: 'overlay',
+          icon: '🪟',
+          title: 'Display Over Other Apps',
+          promptTitle: 'Allow Glaadwin AI to display over other apps?',
+          desc: 'Lets the floating Jarvis Orb stay on top of games, streams, and every screen.'
+        },
+        {
+          key: 'background',
+          icon: '⚡',
+          title: 'Background Access',
+          promptTitle: 'Allow Glaadwin AI to run in the background?',
+          desc: 'Keeps Jarvis voice and clap sensors alive even when you switch tabs or apps.'
+        },
+        {
+          key: 'mic',
+          icon: '🎙️',
+          title: 'Microphone & "Hey Glaadwin AI"',
+          promptTitle: 'Allow Glaadwin AI to record audio & listen for "Hey Glaadwin AI"?',
+          desc: 'Enables hands-free wake-word detection and voice commands.'
+        },
+        {
+          key: 'clap',
+          icon: '👏',
+          title: 'Clap-to-Activate Sensor',
+          promptTitle: 'Allow Glaadwin AI to detect claps to wake Jarvis?',
+          desc: 'Listens for sharp clap spikes so you can summon Jarvis with a clap.'
+        },
+        {
+          key: 'notifications',
+          icon: '🔔',
+          title: 'Notifications & Live Alerts',
+          promptTitle: 'Allow Glaadwin AI to send notifications & stream alerts?',
+          desc: 'Shows live stream alerts, focus timer alarms, and Jarvis status popups.'
+        },
+        {
+          key: 'storage',
+          icon: '💾',
+          title: 'Storage & Highlight Clips',
+          promptTitle: 'Allow Glaadwin AI to save clips, notes & settings?',
+          desc: 'Saves your 30s gaming clips, quick notes, and Jarvis preferences.'
+        },
+        {
+          key: 'shortcuts',
+          icon: '🎮',
+          title: 'System Shortcuts & Game HUD',
+          promptTitle: 'Allow Glaadwin AI to control Gaming & Streaming overlays?',
+          desc: 'Enables crosshair HUD, Turbo mode toggles, and Stream Deck hotkeys.'
+        }
+      ];
+
+      // ==================== 4 PLATFORM CODE SNIPPETS ====================
+      const PLATFORM_SNIPPETS = {
+        mobile: {
+          note: 'Mobile Android build: compact thumb-bar layout + AndroidManifest.xml permissions for WebIntoApp / Android Studio.',
+          code: `<!-- AndroidManifest.xml (Mobile APK Permissions) -->
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+<!-- Use glaadwin-ai-mobile.html in WebIntoApp or Android WebView -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />`
+        },
+        tablet: {
+          note: 'Tablet build: persistent left navigation rail + side-by-side Jarvis Core and Command Feed for landscape & portrait tablets.',
+          code: `/* glaadwin-ai-tablet.html — Tablet Split-Pane Layout */
+.tablet-shell {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  min-height: 100dvh;
+}
+@media (min-width: 768px) {
+  .tablet-split {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 1.25rem;
+  }
+}`
+        },
+        windows: {
+          note: 'Windows Desktop (.exe): Electron main.js + package.json using electron-builder to output a real .exe installer with Always-On-Top Jarvis overlay.',
+          code: `// main.js (Windows .exe — Electron)
+const { app, BrowserWindow } = require('electron');
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 1200, height: 780,
+    alwaysOnTop: true,
+    backgroundColor: '#040914',
+    webPreferences: { contextIsolation: true }
+  });
+  win.loadFile('glaadwin-ai-windows.html');
+}
+app.whenReady().then(createWindow);
+
+// package.json build command:
+// "build:win": "electron-builder --win nsis"`
+        },
+        macos: {
+          note: 'macOS Desktop (.dmg): Electron main.js + package.json configured with hiddenInset macOS titlebar and .dmg disk image output.',
+          code: `// main.js (macOS .dmg — Electron)
+const { app, BrowserWindow } = require('electron');
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 1200, height: 780,
+    titleBarStyle: 'hiddenInset',
+    alwaysOnTop: true,
+    backgroundColor: '#040914',
+    webPreferences: { contextIsolation: true }
+  });
+  win.loadFile('glaadwin-ai-macos.html');
+}
+app.whenReady().then(createWindow);
+
+// package.json build command:
+// "build:mac": "electron-builder --mac dmg"`
+        }
+      };
+
+      // ==================== STATE ====================
+      const state = {
+        signedIn: false,
+        userName: 'Commander',
+        mode: 'account',
+        activeTab: 'jarvis',
+        activePlatformTab: 'mobile',
+        voiceEnabled: true,
+        perms: {
+          overlay: 'denied',
+          background: 'denied',
+          mic: 'denied',
+          clap: 'denied',
+          notifications: 'denied',
+          storage: 'denied',
+          shortcuts: 'denied',
+          clapSensitivity: 55
+        },
+        askQueue: [],
+        askTotal: 0,
+        gaming: {
+          turbo: false,
+          dnd: false,
+          crosshair: false
+        },
+        streaming: {
+          live: false,
+          scene: 'Main Gameplay',
+          seconds: 0,
+          intervalId: null
+        },
+        timer: {
+          remaining: 25 * 60,
+          running: false,
+          intervalId: null
+        },
+        audio: {
+          ctx: null,
+          micStream: null,
+          analyser: null,
+          recognition: null,
+          lastClapTime: 0,
+          pulseEnergy: 0
+        }
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      function isGranted(key) {
+        return state.perms[key] === 'always' || state.perms[key] === 'using';
+      }
+
+      function showToast(message, tone = 'cyan') {
+        const container = $('toast-container');
+        if (!container) return;
+        const colors = {
+          cyan: 'border-cyan-400/50 bg-slate-950/95 text-cyan-100',
+          emerald: 'border-emerald-400/50 bg-slate-950/95 text-emerald-100',
+          amber: 'border-amber-400/50 bg-slate-950/95 text-amber-100'
+        };
+        const el = document.createElement('div');
+        el.className = `pointer-events-auto px-4 py-3 rounded-xl border text-xs sm:text-sm shadow-xl transition-all duration-200 ${colors[tone] || colors.cyan}`;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-6px)';
+          setTimeout(() => el.remove(), 220);
+        }, 3200);
+      }
+
+      // ==================== AUDIO & VOICE ====================
+      function playChime(freqStart = 520, freqEnd = 880) {
+        if (!state.voiceEnabled) return;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          if (!state.audio.ctx) state.audio.ctx = new AudioCtx();
+          const ctx = state.audio.ctx;
+          if (ctx.state === 'suspended') ctx.resume();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freqStart, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + 0.16);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.23);
+        } catch (e) {}
+      }
+
+      function speak(text) {
+        state.audio.pulseEnergy = 1.0;
+        if (!state.voiceEnabled) return;
+        try {
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.rate = 1.02;
+            utter.pitch = 0.96;
+            window.speechSynthesis.speak(utter);
+          }
+        } catch (e) {}
+      }
+
+      // ==================== CHAT LOG ====================
+      function appendMessage(sender, text) {
+        const log = $('jarvis-chat-log');
+        if (!log) return;
+        const isJarvis = sender === 'jarvis';
+        const wrap = document.createElement('div');
+        wrap.className = `flex ${isJarvis ? 'justify-start' : 'justify-end'}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = isJarvis
+          ? 'max-w-[88%] rounded-2xl rounded-tl-sm px-4 py-2.5 bg-slate-900/95 border border-cyan-500/25 text-xs sm:text-sm text-slate-100 leading-relaxed'
+          : 'max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-cyan-500 text-slate-950 font-medium text-xs sm:text-sm leading-relaxed';
+
+        if (isJarvis) {
+          const tag = document.createElement('div');
+          tag.className = 'font-mono-tech text-[10px] uppercase tracking-wider text-cyan-400 mb-1';
+          tag.textContent = 'GLAADWIN AI JARVIS';
+          bubble.appendChild(tag);
+        }
+        const p = document.createElement('div');
+        p.textContent = text;
+        bubble.appendChild(p);
+        wrap.appendChild(bubble);
+        log.appendChild(wrap);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      // ==================== ASKABLE PERMISSIONS WIZARD ====================
+      function renderPermissionsList() {
+        const list = $('permissions-list');
+        if (!list) return;
+        list.innerHTML = '';
+        PERMISSION_ITEMS.forEach((item) => {
+          const status = state.perms[item.key];
+          const badgeText = status === 'always' ? 'Allowed' : (status === 'using' ? 'While Using' : 'Not Allowed');
+          const badgeClass = status === 'denied'
+            ? 'text-slate-400 bg-slate-900 border-slate-700'
+            : 'text-emerald-300 bg-emerald-500/15 border-emerald-400/40';
+
+          const row = document.createElement('div');
+          row.className = 'p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-3';
+          row.innerHTML = `
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-white">${item.icon} ${item.title}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono-tech border ${badgeClass}">${badgeText}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">${item.desc}</div>
+            </div>
+            <button type="button" data-ask-key="${item.key}"
+              class="ask-single-btn px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-cyan-200 text-xs font-semibold shrink-0 transition">
+              Ask
+            </button>
+          `;
+          list.appendChild(row);
+        });
+
+        list.querySelectorAll('.ask-single-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            startAskQueue([btn.dataset.askKey]);
+          });
+        });
+      }
+
+      function startAskQueue(keys) {
+        state.askQueue = [...keys];
+        state.askTotal = keys.length;
+        showNextAskDialog();
+      }
+
+      function showNextAskDialog() {
+        const modal = $('ask-dialog-modal');
+        if (!state.askQueue.length) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          updatePermissionsUI();
+          renderPermissionsList();
+          startMicrophoneSensors();
+          return;
+        }
+        const key = state.askQueue[0];
+        const item = PERMISSION_ITEMS.find((p) => p.key === key);
+        if (!item) return;
+        const currentNum = state.askTotal - state.askQueue.length + 1;
+        $('ask-dialog-step').textContent = state.askTotal > 1 ? `Step ${currentNum} of ${state.askTotal}` : 'Permission Request';
+        $('ask-dialog-icon').textContent = item.icon;
+        $('ask-dialog-title').textContent = item.promptTitle;
+        $('ask-dialog-desc').textContent = item.desc;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        playChime(540, 740);
+      }
+
+      function answerCurrentPermission(choice) {
+        if (!state.askQueue.length) return;
+        const key = state.askQueue.shift();
+        state.perms[key] = choice;
+        const item = PERMISSION_ITEMS.find((p) => p.key === key);
+        if (item) {
+          const label = choice === 'always' ? 'Allowed Always' : (choice === 'using' ? 'Allowed While Using' : 'Denied');
+          showToast(`${item.title}: ${label}`, choice === 'denied' ? 'amber' : 'emerald');
+        }
+        showNextAskDialog();
+      }
+
+      // ==================== COMMAND ENGINE ====================
+      function handleCommand(rawText) {
+        const text = (rawText || '').trim();
+        if (!text) return;
+        appendMessage('user', text);
+        const lower = text.toLowerCase();
+        let reply = '';
+
+        if (lower.includes('ask permission') || lower.includes('request permission')) {
+          startAskQueue(PERMISSION_ITEMS.map((p) => p.key));
+          reply = 'Launching step-by-step permission prompts for Display Over Apps, Background Access, Microphone, Clap, Notifications, Storage, and Shortcuts.';
+        } else if (lower.includes('setting') || lower.includes('permission') || lower.includes('overlay') || lower.includes('microphone')) {
+          openSettingsModal();
+          reply = 'Opening Glaadwin AI permissions so you can configure or ask for every system permission.';
+        } else if (lower.includes('gaming') || lower.includes('game') || lower.includes('fps')) {
+          switchTab('gaming');
+          if (lower.includes('boost') || lower.includes('turbo')) {
+            setSwitchState('toggle-turbo', true);
+            updateGamingTelemetry();
+            reply = 'Switched to Gaming Mode and activated Turbo Performance Boost.';
+          } else {
+            reply = 'Gaming Mode is now open. Turbo Boost, Do Not Disturb, and voice macros are ready.';
+          }
+        } else if (lower.includes('stream') || lower.includes('live') || lower.includes('scene')) {
+          switchTab('streaming');
+          if (lower.includes('start') || lower.includes('go live')) {
+            if (!state.streaming.live) toggleStreamLive();
+            reply = 'Stream Deck is live on Main Gameplay scene. Audio mixer is active.';
+          } else if (lower.includes('stop') || lower.includes('end')) {
+            if (state.streaming.live) toggleStreamLive();
+            reply = 'Stream ended cleanly. Standing by.';
+          } else {
+            reply = 'Streaming Deck is open. Say "start stream" or tap any scene card to switch.';
+          }
+        } else if (lower.includes('everything') || lower.includes('download') || lower.includes('exe') || lower.includes('dmg') || lower.includes('apk')) {
+          switchTab('everything');
+          reply = 'Opened Everything & Builds with your Focus Timer, Notes, and 4 platform starter code sections.';
+        } else if (lower.includes('timer')) {
+          switchTab('everything');
+          startFocusTimer();
+          reply = 'Focus timer started for 25 minutes.';
+        } else if (lower.includes('time')) {
+          const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          reply = `It is currently ${now}. All Glaadwin AI systems are running smoothly.`;
+        } else if (lower.includes('status')) {
+          const granted = PERMISSION_ITEMS.filter((p) => isGranted(p.key)).map((p) => p.title);
+          reply = granted.length
+            ? `Glaadwin AI Jarvis is online (${granted.length}/${PERMISSION_ITEMS.length} permissions active): ${granted.join(', ')}.`
+            : 'Glaadwin AI Jarvis is in Standby. Tap Start Glaadwin AI to grant permissions.';
+        } else if (lower.includes('hey glaadwin') || lower.includes('glaadwin') || lower.includes('jarvis') || lower.includes('hello') || lower.includes('hi')) {
+          reply = `Yes ${state.userName}? Glaadwin AI Jarvis is listening. Ask me to ask permissions, open Gaming, start Streaming, or check System Status.`;
+        } else {
+          reply = `Understood: "${text}". Glaadwin AI Jarvis has logged your request across your active workspace.`;
+        }
+
+        playChime(580, 920);
+        appendMessage('jarvis', reply);
+        speak(reply);
+      }
+
+      // ==================== SWITCH HELPER ====================
+      function setSwitchState(id, checked) {
+        const btn = $(id);
+        if (!btn) return;
+        btn.setAttribute('aria-checked', String(checked));
+        const thumb = btn.querySelector('.toggle-thumb');
+        if (checked) {
+          btn.classList.remove('bg-slate-800', 'border-slate-700');
+          btn.classList.add('bg-cyan-500', 'border-cyan-400');
+          if (thumb) {
+            thumb.classList.remove('translate-x-0', 'bg-slate-300');
+            thumb.classList.add('translate-x-5', 'bg-slate-950');
+          }
+        } else {
+          btn.classList.add('bg-slate-800', 'border-slate-700');
+          btn.classList.remove('bg-cyan-500', 'border-cyan-400');
+          if (thumb) {
+            thumb.classList.add('translate-x-0', 'bg-slate-300');
+            thumb.classList.remove('translate-x-5', 'bg-slate-950');
+          }
+        }
+      }
+
+      function getSwitchState(id) {
+        const btn = $(id);
+        return btn ? btn.getAttribute('aria-checked') === 'true' : false;
+      }
+
+      // ==================== PERMISSIONS UI & SENSORS ====================
+      function updatePermissionsUI() {
+        const overlay = isGranted('overlay');
+        const background = isGranted('background');
+        const mic = isGranted('mic');
+        const clap = isGranted('clap');
+        const grantedCount = PERMISSION_ITEMS.filter((p) => isGranted(p.key)).length;
+
+        $('perm-count-badge').textContent = `${grantedCount}/${PERMISSION_ITEMS.length}`;
+
+        $('hud-overlay-status').textContent = overlay ? 'Active (Orb Visible)' : 'Not Allowed';
+        $('hud-overlay-status').className = `text-xs font-semibold mt-0.5 font-mono-tech ${overlay ? 'text-emerald-400' : 'text-slate-400'}`;
+
+        $('hud-bg-status').textContent = background ? 'Running in Background' : 'Not Allowed';
+        $('hud-bg-status').className = `text-xs font-semibold mt-0.5 font-mono-tech ${background ? 'text-emerald-400' : 'text-slate-400'}`;
+
+        $('hud-wake-status').textContent = mic ? 'Listening · "Hey Glaadwin AI"' : 'Off · "Hey Glaadwin AI"';
+        $('hud-wake-status').className = `text-xs font-semibold mt-0.5 font-mono-tech ${mic ? 'text-cyan-300' : 'text-slate-400'}`;
+
+        $('hud-clap-status').textContent = clap ? `Active (${state.perms.clapSensitivity}%)` : 'Standby';
+        $('hud-clap-status').className = `text-xs font-semibold mt-0.5 font-mono-tech ${clap ? 'text-cyan-300' : 'text-slate-400'}`;
+
+        const orbWrap = $('floating-orb-wrap');
+        if (overlay && state.signedIn) {
+          orbWrap.classList.remove('hidden');
+          orbWrap.classList.add('flex');
+        } else {
+          orbWrap.classList.add('hidden');
+          orbWrap.classList.remove('flex');
+        }
+
+        const anyActive = grantedCount > 0;
+        $('status-dot').className = `w-1.5 h-1.5 rounded-full ${anyActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`;
+        $('status-text').textContent = mic ? 'Listening' : (background ? 'Background Active' : (anyActive ? 'Online' : 'Standby'));
+      }
+
+      async function startMicrophoneSensors() {
+        const mic = isGranted('mic');
+        const clap = isGranted('clap');
+        if (!mic && !clap) {
+          stopMicrophoneSensors();
+          return;
+        }
+        if (clap && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            if (!state.audio.micStream) {
+              state.audio.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            }
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!state.audio.ctx) state.audio.ctx = new AudioCtx();
+            const source = state.audio.ctx.createMediaStreamSource(state.audio.micStream);
+            const analyser = state.audio.ctx.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            state.audio.analyser = analyser;
+          } catch (e) {
+            showToast('Browser preview mic blocked — use Test Clap & Voice buttons.', 'amber');
+          }
+        }
+        if (mic) {
+          const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (SpeechRec) {
+            try {
+              if (state.audio.recognition) state.audio.recognition.stop();
+              const rec = new SpeechRec();
+              rec.continuous = true;
+              rec.interimResults = false;
+              rec.lang = 'en-US';
+              rec.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                const lower = transcript.toLowerCase();
+                if (lower.includes('glaadwin') || lower.includes('gladwin') || lower.includes('glary') || lower.includes('jarvis')) {
+                  handleCommand(transcript);
+                }
+              };
+              rec.onerror = () => {};
+              rec.start();
+              state.audio.recognition = rec;
+            } catch (e) {}
+          }
+        }
+      }
+
+      function stopMicrophoneSensors() {
+        if (state.audio.recognition) {
+          try { state.audio.recognition.stop(); } catch (e) {}
+          state.audio.recognition = null;
+        }
+        if (state.audio.micStream) {
+          state.audio.micStream.getTracks().forEach((t) => t.stop());
+          state.audio.micStream = null;
+          state.audio.analyser = null;
+        }
+      }
+
+      function triggerClapWake() {
+        const now = Date.now();
+        if (now - state.audio.lastClapTime < 1400) return;
+        state.audio.lastClapTime = now;
+        state.audio.pulseEnergy = 1.25;
+        playChime(660, 1040);
+        showToast('Clap detected! Glaadwin AI Jarvis activated.', 'emerald');
+        appendMessage('jarvis', `Clap detected! Welcome back, ${state.userName}. Glaadwin AI Jarvis is at your service.`);
+        speak('Clap detected. Glaadwin AI Jarvis is ready.');
+      }
+
+      // ==================== SETTINGS MODAL ====================
+      function openSettingsModal() {
+        renderPermissionsList();
+        $('clap-sensitivity').value = state.perms.clapSensitivity;
+        $('clap-sens-val').textContent = state.perms.clapSensitivity + '%';
+        const modal = $('settings-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeSettingsModal() {
+        const modal = $('settings-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // ==================== PLATFORM CODE VIEWER ====================
+      function renderPlatformCode(platform) {
+        state.activePlatformTab = platform;
+        const entry = PLATFORM_SNIPPETS[platform] || PLATFORM_SNIPPETS.mobile;
+        $('platform-code-note').textContent = entry.note;
+        $('platform-code-box').textContent = entry.code;
+        document.querySelectorAll('.platform-tab-btn').forEach((btn) => {
+          const active = btn.dataset.platform === platform;
+          btn.className = active
+            ? 'platform-tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-400/40 whitespace-nowrap'
+            : 'platform-tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 whitespace-nowrap';
+        });
+      }
+
+      function copyActivePlatformCode() {
+        const text = (PLATFORM_SNIPPETS[state.activePlatformTab] || PLATFORM_SNIPPETS.mobile).code;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => showToast('Code copied to clipboard!', 'emerald')).catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); showToast('Code copied to clipboard!', 'emerald'); } catch (e) {}
+        ta.remove();
+      }
+
+      // ==================== TABS ====================
+      function switchTab(tabName) {
+        state.activeTab = tabName;
+        document.querySelectorAll('.tab-panel').forEach((panel) => {
+          panel.classList.toggle('hidden', panel.id !== `tab-${tabName}`);
+        });
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+          const active = btn.dataset.tab === tabName;
+          btn.className = active
+            ? 'tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 bg-cyan-500/15 text-cyan-300 border border-cyan-400/40'
+            : 'tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition flex items-center gap-2 bg-slate-900/70 text-slate-400 border border-slate-800 hover:text-slate-200';
+        });
+      }
+
+      // ==================== GAMING ====================
+      function updateGamingTelemetry() {
+        state.gaming.turbo = getSwitchState('toggle-turbo');
+        state.gaming.dnd = getSwitchState('toggle-dnd');
+        state.gaming.crosshair = getSwitchState('toggle-crosshair');
+
+        $('game-fps').textContent = state.gaming.turbo ? '144' : '120';
+        $('game-fps-note').textContent = state.gaming.turbo ? 'Turbo boost locked' : 'Standard balanced mode';
+        $('game-ping').textContent = state.gaming.turbo ? '18' : '24';
+        $('game-temp').textContent = state.gaming.turbo ? '44°C' : '41°C';
+
+        const ch = $('crosshair-overlay');
+        if (state.gaming.crosshair) {
+          ch.classList.remove('hidden');
+          ch.classList.add('flex');
+        } else {
+          ch.classList.add('hidden');
+          ch.classList.remove('flex');
+        }
+      }
+
+      // ==================== STREAMING ====================
+      function formatClock(totalSec) {
+        const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+        const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+        const s = String(totalSec % 60).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+      }
+
+      function toggleStreamLive() {
+        state.streaming.live = !state.streaming.live;
+        const btn = $('toggle-stream-btn');
+        const dot = $('stream-live-dot');
+        const label = $('stream-state-label');
+
+        if (state.streaming.live) {
+          state.streaming.seconds = 0;
+          $('stream-timer').textContent = '00:00:00';
+          if (state.streaming.intervalId) clearInterval(state.streaming.intervalId);
+          state.streaming.intervalId = setInterval(() => {
+            state.streaming.seconds += 1;
+            $('stream-timer').textContent = formatClock(state.streaming.seconds);
+          }, 1000);
+          btn.textContent = 'End Stream';
+          btn.className = 'px-5 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-semibold text-sm transition shrink-0';
+          dot.className = 'w-3.5 h-3.5 rounded-full bg-rose-500 animate-pulse shrink-0';
+          label.textContent = 'LIVE';
+          label.className = 'px-2 py-0.5 rounded-md text-[11px] font-mono-tech bg-rose-500/20 border border-rose-400/50 text-rose-300';
+          showToast('Stream is now LIVE on ' + state.streaming.scene, 'emerald');
+        } else {
+          if (state.streaming.intervalId) clearInterval(state.streaming.intervalId);
+          state.streaming.intervalId = null;
+          btn.textContent = 'Go Live';
+          btn.className = 'px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition shrink-0';
+          dot.className = 'w-3.5 h-3.5 rounded-full bg-slate-600 shrink-0';
+          label.textContent = 'OFFLINE';
+          label.className = 'px-2 py-0.5 rounded-md text-[11px] font-mono-tech bg-slate-900 border border-slate-700 text-slate-400';
+          showToast('Stream ended.', 'cyan');
+        }
+      }
+
+      // ==================== FOCUS TIMER ====================
+      function renderFocusTimer() {
+        const m = String(Math.floor(state.timer.remaining / 60)).padStart(2, '0');
+        const s = String(state.timer.remaining % 60).padStart(2, '0');
+        $('focus-timer-display').textContent = `${m}:${s}`;
+      }
+
+      function startFocusTimer() {
+        if (state.timer.running) return;
+        state.timer.running = true;
+        if (state.timer.intervalId) clearInterval(state.timer.intervalId);
+        state.timer.intervalId = setInterval(() => {
+          if (state.timer.remaining > 0) {
+            state.timer.remaining -= 1;
+            renderFocusTimer();
+          } else {
+            pauseFocusTimer();
+            showToast('Focus timer complete!', 'emerald');
+            speak('Your focus timer is complete.');
+          }
+        }, 1000);
+      }
+
+      function pauseFocusTimer() {
+        state.timer.running = false;
+        if (state.timer.intervalId) clearInterval(state.timer.intervalId);
+        state.timer.intervalId = null;
+      }
+
+      function resetFocusTimer() {
+        pauseFocusTimer();
+        state.timer.remaining = 25 * 60;
+        renderFocusTimer();
+      }
+
+      // ==================== CANVAS JARVIS CORE ====================
+      let canvasAnimId = null;
+      function startJarvisCanvas() {
+        const canvas = $('jarvis-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let angle = 0;
+
+        function resize() {
+          const rect = canvas.getBoundingClientRect();
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = Math.max(200, Math.floor(rect.width * dpr));
+          canvas.height = Math.max(200, Math.floor(rect.height * dpr));
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const dataArray = new Uint8Array(128);
+
+        function draw() {
+          const rect = canvas.getBoundingClientRect();
+          const w = rect.width || 240;
+          const h = rect.height || 240;
+          const cx = w / 2;
+          const cy = h / 2;
+          const baseR = Math.min(w, h) * 0.36;
+
+          ctx.clearRect(0, 0, w, h);
+
+          let micLevel = 0;
+          if (state.audio.analyser && isGranted('clap')) {
+            state.audio.analyser.getByteTimeDomainData(dataArray);
+            let peak = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              const v = Math.abs(dataArray[i] - 128) / 128;
+              if (v > peak) peak = v;
+            }
+            micLevel = peak;
+            const threshold = 1.0 - (state.perms.clapSensitivity / 100) * 0.72;
+            if (peak > threshold) triggerClapWake();
+          }
+
+          state.audio.pulseEnergy = Math.max(0, state.audio.pulseEnergy * 0.94);
+          const energy = Math.min(1.4, state.audio.pulseEnergy + micLevel * 1.2);
+          angle += 0.012 + energy * 0.03;
+
+          const grad = ctx.createRadialGradient(cx, cy, baseR * 0.35, cx, cy, baseR * 1.25);
+          grad.addColorStop(0, `rgba(34, 211, 238, ${0.14 + energy * 0.16})`);
+          grad.addColorStop(1, 'rgba(34, 211, 238, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, baseR * 1.25, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.75)';
+          ctx.lineWidth = 2.5;
+          for (let i = 0; i < 6; i++) {
+            const start = (i * Math.PI) / 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, baseR + energy * 8, start, start + 0.65);
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(-angle * 1.4);
+          ctx.setLineDash([6, 8]);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, baseR * 0.8 + energy * 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+
+          canvasAnimId = requestAnimationFrame(draw);
+        }
+        if (canvasAnimId) cancelAnimationFrame(canvasAnimId);
+        draw();
+      }
+
+      // ==================== DRAGGABLE FLOATING ORB ====================
+      function initDraggableOrb() {
+        const wrap = $('floating-orb-wrap');
+        const btn = $('floating-orb-btn');
+        if (!wrap || !btn) return;
+        let dragging = false;
+        let moved = false;
+        let startX = 0, startY = 0, startRight = 20, startBottom = 24;
+
+        btn.addEventListener('pointerdown', (e) => {
+          dragging = true;
+          moved = false;
+          startX = e.clientX;
+          startY = e.clientY;
+          const rect = wrap.getBoundingClientRect();
+          startRight = window.innerWidth - rect.right;
+          startBottom = window.innerHeight - rect.bottom;
+          btn.setPointerCapture(e.pointerId);
+        });
+
+        btn.addEventListener('pointermove', (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+          if (!moved) return;
+          const nextRight = Math.max(8, Math.min(window.innerWidth - 70, startRight - dx));
+          const nextBottom = Math.max(8, Math.min(window.innerHeight - 70, startBottom - dy));
+          wrap.style.right = nextRight + 'px';
+          wrap.style.bottom = nextBottom + 'px';
+        });
+
+        btn.addEventListener('pointerup', (e) => {
+          if (!dragging) return;
+          dragging = false;
+          try { btn.releasePointerCapture(e.pointerId); } catch (err) {}
+          if (!moved) {
+            $('orb-popover').classList.toggle('hidden');
+            playChime(600, 820);
+          }
+        });
+      }
+
+      // ==================== SIGN IN FLOW ====================
+      function enterApp(name, mode) {
+        state.signedIn = true;
+        state.userName = name || 'Commander';
+        state.mode = mode;
+
+        $('auth-screen').classList.add('hidden');
+        $('app-shell').classList.remove('hidden');
+        $('welcome-heading').textContent = `Welcome to Glaadwin AI Jarvis, ${state.userName}.`;
+        $('welcome-subtitle').textContent = 'Welcome to Glaadwin AI Jarvis';
+
+        try {
+          const savedNote = localStorage.getItem('glaadwin_jarvis_note');
+          if (savedNote) $('quick-notes-area').value = savedNote;
+        } catch (e) {}
+
+        startJarvisCanvas();
+        updatePermissionsUI();
+        renderPlatformCode('windows');
+        playChime(480, 880);
+        appendMessage('jarvis', `Welcome to Glaadwin AI Jarvis, ${state.userName}. Tap "Start Glaadwin AI" to run the step-by-step permission prompts for Display Over Apps, Background Access, Microphone, Clap Wake, and more.`);
+        speak('Welcome to Glaadwin AI Jarvis.');
+      }
+
+      // ==================== EVENT LISTENERS ====================
+      $('signin-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = $('user-name-input').value.trim();
+        const emailInput = $('user-email-input').value.trim();
+        const displayName = nameInput || (emailInput ? emailInput.split('@')[0] : 'Commander');
+        enterApp(displayName, 'account');
+      });
+
+      $('google-signin-btn').addEventListener('click', () => {
+        enterApp('Google User', 'google');
+      });
+
+      $('android-signin-btn').addEventListener('click', () => {
+        enterApp('Android User', 'android');
+      });
+
+      $('system-signin-btn').addEventListener('click', () => {
+        enterApp('System User', 'system');
+      });
+
+      $('signout-btn').addEventListener('click', () => {
+        stopMicrophoneSensors();
+        state.signedIn = false;
+        $('app-shell').classList.add('hidden');
+        $('floating-orb-wrap').classList.add('hidden');
+        $('floating-orb-wrap').classList.remove('flex');
+        $('auth-screen').classList.remove('hidden');
+        showToast('Signed out of Glaadwin AI.', 'cyan');
+      });
+
+      $('start-glaadwin-btn').addEventListener('click', openSettingsModal);
+      $('open-settings-inline-btn').addEventListener('click', openSettingsModal);
+      $('close-settings-btn').addEventListener('click', closeSettingsModal);
+      $('save-perms-btn').addEventListener('click', closeSettingsModal);
+
+      $('ask-all-wizard-btn').addEventListener('click', () => {
+        startAskQueue(PERMISSION_ITEMS.map((p) => p.key));
+      });
+
+      $('enable-all-perms-btn').addEventListener('click', () => {
+        PERMISSION_ITEMS.forEach((p) => { state.perms[p.key] = 'always'; });
+        closeSettingsModal();
+        updatePermissionsUI();
+        startMicrophoneSensors();
+        playChime(500, 960);
+        showToast('All 7 Glaadwin AI permissions allowed.', 'emerald');
+        appendMessage('jarvis', 'All 7 Glaadwin AI Jarvis permissions are now active.');
+        speak('Glaadwin AI Jarvis is fully active.');
+      });
+
+      $('ask-allow-always-btn').addEventListener('click', () => answerCurrentPermission('always'));
+      $('ask-allow-using-btn').addEventListener('click', () => answerCurrentPermission('using'));
+      $('ask-deny-btn').addEventListener('click', () => answerCurrentPermission('denied'));
+
+      $('settings-modal').addEventListener('click', (e) => {
+        if (e.target === $('settings-modal')) closeSettingsModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSettingsModal();
+      });
+
+      $('voice-mute-btn').addEventListener('click', () => {
+        state.voiceEnabled = !state.voiceEnabled;
+        $('voice-on-icon').classList.toggle('hidden', !state.voiceEnabled);
+        $('voice-off-icon').classList.toggle('hidden', state.voiceEnabled);
+        if (!state.voiceEnabled && 'speechSynthesis' in window) {
+          try { window.speechSynthesis.cancel(); } catch (e) {}
+        }
+        showToast(state.voiceEnabled ? 'Jarvis voice enabled' : 'Jarvis voice muted', 'cyan');
+      });
+
+      $('dismiss-banner-btn').addEventListener('click', () => {
+        $('welcome-banner').classList.add('hidden');
+      });
+
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      document.querySelectorAll('.platform-tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => renderPlatformCode(btn.dataset.platform));
+      });
+      $('copy-platform-code-btn').addEventListener('click', copyActivePlatformCode);
+
+      document.querySelectorAll('.switch-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const next = btn.getAttribute('aria-checked') !== 'true';
+          setSwitchState(btn.id, next);
+          if (btn.id.startsWith('toggle-')) updateGamingTelemetry();
+        });
+      });
+
+      $('clap-sensitivity').addEventListener('input', (e) => {
+        state.perms.clapSensitivity = Number(e.target.value || 55);
+        $('clap-sens-val').textContent = state.perms.clapSensitivity + '%';
+        updatePermissionsUI();
+      });
+
+      $('core-tap-btn').addEventListener('click', () => handleCommand('Hey Glaadwin AI'));
+      $('sim-wake-btn').addEventListener('click', () => handleCommand('Hey Glaadwin AI'));
+      $('sim-clap-btn').addEventListener('click', triggerClapWake);
+
+      $('jarvis-cmd-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = $('jarvis-cmd-input');
+        const val = input.value.trim();
+        if (!val) return;
+        input.value = '';
+        handleCommand(val);
+      });
+
+      $('clear-log-btn').addEventListener('click', () => {
+        $('jarvis-chat-log').innerHTML = '';
+        appendMessage('jarvis', 'Command log cleared. Ready for your next instruction.');
+      });
+
+      document.querySelectorAll('.quick-cmd').forEach((btn) => {
+        btn.addEventListener('click', () => handleCommand(btn.dataset.cmd));
+      });
+
+      document.querySelectorAll('.macro-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const msg = btn.dataset.macro;
+          playChime(620, 960);
+          showToast(msg, 'emerald');
+          appendMessage('jarvis', msg);
+          speak(msg);
+        });
+      });
+
+      $('toggle-stream-btn').addEventListener('click', toggleStreamLive);
+
+      document.querySelectorAll('.scene-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.streaming.scene = btn.dataset.scene;
+          $('active-scene-label').textContent = state.streaming.scene;
+          document.querySelectorAll('.scene-btn').forEach((other) => {
+            const active = other === btn;
+            other.className = active
+              ? 'scene-btn p-4 rounded-2xl bg-cyan-500/15 border border-cyan-400/50 text-left transition'
+              : 'scene-btn p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-cyan-400/30 text-left transition';
+          });
+          playChime(520, 760);
+          showToast(`Switched scene to ${state.streaming.scene}`, 'cyan');
+        });
+      });
+
+      ['mic', 'game', 'alerts'].forEach((channel) => {
+        $(`vol-${channel}`).addEventListener('input', (e) => {
+          $(`vol-${channel}-val`).textContent = e.target.value + '%';
+        });
+      });
+
+      $('timer-start-btn').addEventListener('click', startFocusTimer);
+      $('timer-pause-btn').addEventListener('click', pauseFocusTimer);
+      $('timer-reset-btn').addEventListener('click', resetFocusTimer);
+
+      $('save-note-btn').addEventListener('click', () => {
+        try {
+          localStorage.setItem('glaadwin_jarvis_note', $('quick-notes-area').value);
+        } catch (e) {}
+        showToast('Note saved to Glaadwin AI.', 'emerald');
+      });
+
+      $('close-orb-popover').addEventListener('click', () => {
+        $('orb-popover').classList.add('hidden');
+      });
+
+      document.querySelectorAll('.orb-action-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.orbAction;
+          $('orb-popover').classList.add('hidden');
+          if (action === 'wake') {
+            switchTab('jarvis');
+            handleCommand('Hey Glaadwin AI');
+          } else if (action === 'clap') {
+            triggerClapWake();
+          } else if (action === 'gaming') {
+            switchTab('gaming');
+            showToast('Switched to Gaming Mode', 'cyan');
+          } else if (action === 'streaming') {
+            switchTab('streaming');
+            showToast('Switched to Streaming Mode', 'cyan');
+          }
+        });
+      });
+
+      initDraggableOrb();
+      renderFocusTimer();
+      renderPlatformCode('windows');
+    })();
+  </script>
+</body>
+</html>
